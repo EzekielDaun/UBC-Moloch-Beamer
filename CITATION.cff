@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+title: UBC-Moloch-Beamer
+message: "If you use this template, please cite it using this metadata."
+type: software
+version: 0.1.0
+date-released: 2026-02-22
+license: CC-BY-SA-4.0
+authors:
+  - name: UBC-Moloch-Beamer Contributors
+preferred-citation:
+  type: software
+  title: UBC-Moloch-Beamer
+  version: 0.1.0
+  date-released: 2026-02-22
+  authors:
+    - name: UBC-Moloch-Beamer Contributors
+references:
+  - type: software
+    title: "moloch: A Simpler Beamer Theme"
+    authors:
+      - name: jolars
+    url: "https://github.com/jolars/moloch"

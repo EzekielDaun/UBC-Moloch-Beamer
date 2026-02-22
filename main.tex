@@ -1,0 +1,48 @@
+\documentclass[aspectratio=169,11pt]{beamer}
+
+\usepackage{enumitem}
+\usepackage{ubc-moloch-beamer}
+
+\title{UBC-Moloch-Beamer}
+\subtitle{Minimal Template}
+\author{Your Name}
+\institute{The University of British Columbia}
+\date{\today}
+\titlegraphic{\ubccrest}
+
+\begin{document}
+
+\UBCSetTitleVariant{light}
+\UBCTitleFrame
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\UBCFrameLight
+\UBCSetNormalCrest{on}
+\begin{frame}
+  \frametitle{Overview}
+  This template builds on the moloch beamer theme \cite{jolars-moloch}.
+  \begin{itemize}
+    \item Light and dark variants are available per frame.
+    \item The corner crest can be toggled for normal and section frames.
+    \item Section commands automatically create a section page.
+  \end{itemize}
+\end{frame}
+
+\section{Results}
+
+\UBCFrameDark
+\UBCSetNormalCrest{off}
+\begin{frame}
+  \frametitle{Key Message}
+  Replace this slide with your own thesis content.
+\end{frame}
+
+\begin{frame}[allowframebreaks]
+  \frametitle{References}
+  \bibliographystyle{plain}
+  \bibliography{references}
+\end{frame}
+
+\end{document}

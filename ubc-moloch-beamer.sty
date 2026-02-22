@@ -1,0 +1,272 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{ubc-moloch-beamer}[2026/02/22 UBC moloch beamer style]
+
+\RequirePackage{etoolbox}
+
+\usetheme[titlepage=plain,colortheme=paper]{moloch}
+\molochset{progressbar=frametitle}
+
+% ===== UBC colors =====
+\definecolor{UBCBluePMS282}{RGB}{12,35,68}
+\definecolor{PMS2935}{RGB}{0,85,183}
+\definecolor{PMS2995}{RGB}{0,167,225}
+\definecolor{PMS298}{RGB}{64,180,229}
+\definecolor{PMS297}{RGB}{110,196,232}
+\definecolor{PMS2975}{RGB}{151,212,233}
+
+\definecolor{UBCTitleLight}{RGB}{0,119,201}
+\definecolor{UBCTitleDark}{RGB}{210,233,255}
+
+% ===== Light theme colors =====
+\molochcolors{light/frametitle bg=white}
+\molochcolors{light/frametitle fg=UBCTitleLight}
+\molochcolors{light/progressbar fg=PMS2935}
+\molochcolors{light/standout bg=white}
+\molochcolors{light/standout fg=UBCBluePMS282}
+
+% ===== Dark theme colors =====
+\molochcolors{dark/normal text bg=UBCBluePMS282}
+\molochcolors{dark/normal text fg=white}
+\molochcolors{dark/frametitle bg=UBCBluePMS282}
+\molochcolors{dark/frametitle fg=UBCTitleDark}
+\molochcolors{dark/progressbar fg=PMS2975}
+\molochcolors{dark/standout bg=UBCBluePMS282}
+\molochcolors{dark/standout fg=white}
+
+\makeatletter
+\newif\ifubc@framedark
+\newcommand{\ubc@setlight}{%
+  \molochcolors{variant=light}%
+  \setbeamercolor{page number in head/foot}{use=normal text,fg=normal text.fg}%
+  \global\ubc@framedarkfalse
+}
+\newcommand{\ubc@setdark}{%
+  \molochcolors{variant=dark}%
+  \setbeamercolor{page number in head/foot}{use=normal text,fg=normal text.fg}%
+  \global\ubc@framedarktrue
+}
+
+\newbool{ubc@title@dark}
+\newbool{ubc@titleframe}
+\newbool{ubc@sectionframe}
+\newbool{ubc@sectionlogo}
+\newbool{ubc@normallogo}
+\newbool{ubc@forcelight}
+\newbool{ubc@forcedark}
+\boolfalse{ubc@title@dark}
+\boolfalse{ubc@titleframe}
+\boolfalse{ubc@sectionframe}
+\boolfalse{ubc@sectionlogo}
+\booltrue{ubc@normallogo}
+\boolfalse{ubc@forcelight}
+\boolfalse{ubc@forcedark}
+\newif\ifubc@showcornerlogo
+\ubc@showcornerlogotrue
+
+\newcommand{\UBCSetTitleVariant}[1]{%
+  \ifstrequal{#1}{dark}{%
+    \booltrue{ubc@title@dark}%
+  }{%
+    \ifstrequal{#1}{light}{%
+      \boolfalse{ubc@title@dark}%
+    }{%
+      \PackageError{ubc-moloch-beamer}{Invalid title variant '#1'}{Use 'light' or 'dark'.}%
+    }%
+  }%
+}
+\newcommand{\UBCTitleFrame}{%
+  \global\ubc@titleframetrue
+}
+\newcommand{\UBCFrameLight}{%
+  \global\ubc@forcelighttrue
+  \global\ubc@forcedarkfalse
+}
+\newcommand{\UBCFrameDark}{%
+  \global\ubc@forcedarktrue
+  \global\ubc@forcelightfalse
+}
+\newcommand{\UBCSetSectionCrest}[1]{%
+  \ifstrequal{#1}{on}{%
+    \booltrue{ubc@sectionlogo}%
+  }{%
+    \ifstrequal{#1}{off}{%
+      \boolfalse{ubc@sectionlogo}%
+    }{%
+      \ifstrequal{#1}{true}{%
+        \booltrue{ubc@sectionlogo}%
+      }{%
+        \ifstrequal{#1}{false}{%
+          \boolfalse{ubc@sectionlogo}%
+        }{%
+          \PackageError{ubc-moloch-beamer}{Invalid section crest value '#1'}{Use on/off or true/false.}%
+        }%
+      }%
+    }%
+  }%
+}
+\newcommand{\UBCSetNormalCrest}[1]{%
+  \ifstrequal{#1}{on}{%
+    \booltrue{ubc@normallogo}%
+  }{%
+    \ifstrequal{#1}{off}{%
+      \boolfalse{ubc@normallogo}%
+    }{%
+      \ifstrequal{#1}{true}{%
+        \booltrue{ubc@normallogo}%
+      }{%
+        \ifstrequal{#1}{false}{%
+          \boolfalse{ubc@normallogo}%
+        }{%
+          \PackageError{ubc-moloch-beamer}{Invalid normal crest value '#1'}{Use on/off or true/false.}%
+        }%
+      }%
+    }%
+  }%
+}
+
+% ===== UBC crest auto-switch with moloch variant =====
+\newcommand{\ubccrest}[1][1cm]{%
+  \ifubc@framedark
+    \includegraphics[width=#1]{logo/ubc-logo-2018-crest-white-rgb300.png}%
+  \else
+    \includegraphics[width=#1]{logo/ubc-logo-2018-crest-blue-rgb300.png}%
+  \fi
+}
+
+% ===== Corner logo template =====
+% Match UBC PPT right-logo geometry (16:9):
+% box = 900112 x 1131887 EMU, logo = 363537 x 493712 EMU.
+\defbeamertemplate{background}{ubc corner logo}{%
+  \tikzexternaldisable
+  \begin{tikzpicture}[remember picture,overlay]
+    \ifubc@showcornerlogo
+      \ifubc@framedark
+        \def\ubclogoboxfill{white}%
+        \def\ubclogocrestfile{logo/ubc-logo-2018-crest-blue-rgb300.png}%
+      \else
+        \def\ubclogoboxfill{UBCBluePMS282}%
+        \def\ubclogocrestfile{logo/ubc-logo-2018-crest-white-rgb300.png}%
+      \fi
+      \node[
+        anchor=north east,
+        inner sep=0pt,
+        outer sep=0pt,
+        fill=\ubclogoboxfill,
+        minimum width=0.098393\paperwidth,
+        minimum height=0.220056\paperheight,
+      ] at ([xshift=0pt,yshift=-0.220056\paperheight]current page.north east)
+      {
+        \includegraphics[height=0.095990\paperheight]{\ubclogocrestfile}
+      };
+    \fi
+  \end{tikzpicture}%
+  \tikzexternalenable
+}
+\newcommand{\ubclogoenable}{\global\ubc@showcornerlogotrue}
+\newcommand{\ubclogodisable}{\global\ubc@showcornerlogofalse}
+
+% Fill slide canvas from our frame-level dark/light state so body background
+% remains correct when notes/two-screen mode introduces extra grouping.
+\defbeamertemplate{background canvas}{ubc frame fill}{%
+  \ifubc@framedark
+    \color{UBCBluePMS282}\vrule width\paperwidth height\paperheight%
+  \else
+    \color{white}\vrule width\paperwidth height\paperheight%
+  \fi
+}
+
+\newcommand{\ubc@applyforcedvariant}[1]{%
+  \ifbool{ubc@forcelight}{%
+    \ubc@setlight
+  }{%
+    \ifbool{ubc@forcedark}{%
+      \ubc@setdark
+    }{%
+      #1%
+    }%
+  }%
+}
+\newcommand{\ubc@applyframestyle}{%
+  \ifbool{ubc@titleframe}{%
+    \ubc@applyforcedvariant{%
+      \ifbool{ubc@title@dark}{\ubc@setdark}{\ubc@setlight}%
+    }%
+    % Keep title frame unnumbered and hide its page-number display.
+    \addtocounter{framenumber}{-1}%
+    \ubclogodisable
+  }{%
+    \ifbool{ubc@sectionframe}{%
+      \ubc@applyforcedvariant{\ubc@setdark}%
+      \ifbool{ubc@sectionlogo}{\ubclogoenable}{\ubclogodisable}%
+    }{%
+      \ifbool{moloch@standout}{%
+        \ubc@applyforcedvariant{\ubc@setdark}%
+        \ubclogodisable
+      }{%
+        \ubc@applyforcedvariant{\ubc@setlight}%
+        \ifbool{ubc@normallogo}{\ubclogoenable}{\ubclogodisable}%
+      }%
+    }%
+  }%
+  \global\ubc@titleframefalse
+  \global\ubc@forcelightfalse
+  \global\ubc@forcedarkfalse
+}
+
+% Apply style at the start of each frame.
+\AtBeginEnvironment{beamer@frameslide}{\ubc@applyframestyle}
+
+% Section page: dark + no corner logo.
+\AtBeginSection{
+  \global\ubc@sectionframetrue
+  \ifbeamer@inframe
+    \sectionpage
+    \global\ubc@sectionframefalse
+  \else
+    \frame[plain,c,noframenumbering]{\sectionpage}
+    \global\ubc@sectionframefalse
+  \fi
+}
+
+% Defaults for regular content frames.
+\setbeamertemplate{background canvas}[ubc frame fill]
+\setbeamertemplate{background}[ubc corner logo]
+% Keep itemize markers visible when packages like enumitem rely on \labelitem*.
+\def\labelitemi{%
+  \usebeamerfont*{itemize item}%
+  \usebeamercolor[fg]{itemize item}%
+  \usebeamertemplate{itemize item}%
+}
+\def\labelitemii{%
+  \usebeamerfont*{itemize subitem}%
+  \usebeamercolor[fg]{itemize subitem}%
+  \usebeamertemplate{itemize subitem}%
+}
+\def\labelitemiii{%
+  \usebeamerfont*{itemize subsubitem}%
+  \usebeamercolor[fg]{itemize subsubitem}%
+  \usebeamertemplate{itemize subsubitem}%
+}
+\def\labelitemiv{%
+  \usebeamerfont*{itemize subsubitem}%
+  \usebeamercolor[fg]{itemize subsubitem}%
+  \usebeamertemplate{itemize subsubitem}%
+}
+% Show page number only after numbered content starts.
+\defbeamertemplate{page number in head/foot}{ubc frame number}{%
+  \ifnum\value{framenumber}>0\relax
+    \ifubc@framedark
+      {\color{white}\insertframenumber}%
+    \else
+      {\usebeamercolor[fg]{normal text}\insertframenumber}%
+    \fi
+  \fi
+}
+\setbeamertemplate{page number in head/foot}[ubc frame number]
+% Avoid hyperref bookmark warnings when continuation labels use \translate.
+\pdfstringdefDisableCommands{%
+  \def\translate#1{#1}%
+}
+\ubc@setlight
+\ubclogoenable
+\makeatother

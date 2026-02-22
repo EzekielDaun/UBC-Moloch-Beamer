@@ -1,0 +1,325 @@
+\documentclass[aspectratio=169,11pt]{beamer}
+
+\usepackage{ubc-moloch-beamer}
+
+% Show note text in the exported PDF. Remove this line if you only want slides.
+\setbeameroption{show notes on second screen}
+\setbeamertemplate{note page}[plain]
+
+\author{Style API Matrix}
+
+\newcommand{\DocSetTitleMeta}[1]{%
+  \title{ubc-moloch-beamer.sty}%
+  \subtitle{#1}%
+  \institute{Theme behavior matrix}%
+  \date{\today}%
+  \titlegraphic{\ubccrest}%
+}
+
+\newcommand{\DocSectionExplain}[2]{%
+  \begin{frame}
+    \frametitle{#1}
+    The previous slide is the real section frame for this case.
+    \note{#2}
+  \end{frame}
+}
+
+\begin{document}
+
+\UBCFrameLight
+\UBCSetNormalCrest{off}
+\begin{frame}
+  \frametitle{How to read this file}
+  This `tests/style-matrix.tex` is a usage document for `ubc-moloch-beamer.sty`.
+  It is based on the moloch beamer theme \cite{jolars-moloch}.
+  \begin{itemize}
+    \item 16 cases = frame type x light/dark x crest request on/off
+    \item Explanations are placed in `\note{...}` only
+    \item Section cases use an auto section page plus one explanation page
+  \end{itemize}
+  \note{
+    This deck intentionally ignores thesis content and only demonstrates style behavior.
+    Case keys:
+    - T = title, S = section, N = normal, U = standout.
+    - L = light, D = dark.
+    - ON/OFF = crest requested ON/OFF.
+    For title and standout frames, crest is fixed OFF by package design, even when ON is requested.
+    }
+  \end{frame}
+\UBCSetNormalCrest{on}
+
+% ============================================================================
+% 1) TITLE FRAME CASES (4)
+% ============================================================================
+
+\UBCSetSectionCrest{off}
+\UBCSetNormalCrest{off}
+\UBCSetTitleVariant{light}
+\DocSetTitleMeta{Case T-L-OFF: Title frame, light, crest request OFF}
+\UBCTitleFrame
+\begin{frame}
+  \titlepage
+  \note{
+    Case T-L-OFF.
+    Input:
+    - UBCSetTitleVariant{light}
+    - UBCTitleFrame before this frame
+    - crest requested OFF
+    Expected:
+    - light title styling
+    - corner crest hidden
+  }
+\end{frame}
+
+\UBCSetSectionCrest{on}
+\UBCSetNormalCrest{on}
+\UBCSetTitleVariant{light}
+\DocSetTitleMeta{Case T-L-ON: Title frame, light, crest request ON}
+\UBCTitleFrame
+\begin{frame}
+  \titlepage
+  \note{
+    Case T-L-ON.
+    Input:
+    - UBCSetTitleVariant{light}
+    - UBCTitleFrame before this frame
+    - crest requested ON
+    Expected:
+    - same visual result as T-L-OFF
+    - title frame still hides corner crest by design
+  }
+\end{frame}
+
+\UBCSetSectionCrest{off}
+\UBCSetNormalCrest{off}
+\UBCSetTitleVariant{dark}
+\DocSetTitleMeta{Case T-D-OFF: Title frame, dark, crest request OFF}
+\UBCTitleFrame
+\begin{frame}
+  \titlepage
+  \note{
+    Case T-D-OFF.
+    Input:
+    - UBCSetTitleVariant{dark}
+    - UBCTitleFrame before this frame
+    - crest requested OFF
+    Expected:
+    - dark title styling
+    - corner crest hidden
+  }
+\end{frame}
+
+\UBCSetSectionCrest{on}
+\UBCSetNormalCrest{on}
+\UBCSetTitleVariant{dark}
+\DocSetTitleMeta{Case T-D-ON: Title frame, dark, crest request ON}
+\UBCTitleFrame
+\begin{frame}
+  \titlepage
+  \note{
+    Case T-D-ON.
+    Input:
+    - UBCSetTitleVariant{dark}
+    - UBCTitleFrame before this frame
+    - crest requested ON
+    Expected:
+    - same visual result as T-D-OFF
+    - title frame still hides corner crest by design
+  }
+\end{frame}
+
+% ============================================================================
+% 2) SECTION FRAME CASES (4)
+% ============================================================================
+
+\UBCFrameLight
+\UBCSetSectionCrest{off}
+\section{Case S-L-OFF}
+\DocSectionExplain{Case S-L-OFF (Section)}{
+  Case S-L-OFF.
+  Input before section{...}:
+  - UBCFrameLight
+  - UBCSetSectionCrest{off}
+  Expected section page:
+  - light variant
+  - corner crest hidden
+}
+
+\UBCFrameLight
+\UBCSetSectionCrest{on}
+\section{Case S-L-ON}
+\DocSectionExplain{Case S-L-ON (Section)}{
+  Case S-L-ON.
+  Input before section{...}:
+  - UBCFrameLight
+  - UBCSetSectionCrest{on}
+  Expected section page:
+  - light variant
+  - corner crest visible
+}
+
+\UBCFrameDark
+\UBCSetSectionCrest{off}
+\section{Case S-D-OFF}
+\DocSectionExplain{Case S-D-OFF (Section)}{
+  Case S-D-OFF.
+  Input before section{...}:
+  - UBCFrameDark
+  - UBCSetSectionCrest{off}
+  Expected section page:
+  - dark variant
+  - corner crest hidden
+}
+
+\UBCFrameDark
+\UBCSetSectionCrest{on}
+\section{Case S-D-ON}
+\DocSectionExplain{Case S-D-ON (Section)}{
+  Case S-D-ON.
+  Input before section{...}:
+  - UBCFrameDark
+  - UBCSetSectionCrest{on}
+  Expected section page:
+  - dark variant
+  - corner crest visible
+}
+
+% ============================================================================
+% 3) NORMAL FRAME CASES (4)
+% ============================================================================
+
+\UBCFrameLight
+\UBCSetNormalCrest{off}
+\begin{frame}
+  \frametitle{Case N-L-OFF}
+  Normal frame, light variant, crest request OFF.
+  \note{
+    Case N-L-OFF.
+    Input:
+    - UBCFrameLight
+    - UBCSetNormalCrest{off}
+    Expected:
+    - light body background
+    - corner crest hidden
+  }
+\end{frame}
+
+\UBCFrameLight
+\UBCSetNormalCrest{on}
+\begin{frame}
+  \frametitle{Case N-L-ON}
+  Normal frame, light variant, crest request ON.
+  \note{
+    Case N-L-ON.
+    Input:
+    - UBCFrameLight
+    - UBCSetNormalCrest{on}
+    Expected:
+    - light body background
+    - corner crest visible
+  }
+\end{frame}
+
+\UBCFrameDark
+\UBCSetNormalCrest{off}
+\begin{frame}
+  \frametitle{Case N-D-OFF}
+  Normal frame, dark variant, crest request OFF.
+  \note{
+    Case N-D-OFF.
+    Input:
+    - UBCFrameDark
+    - UBCSetNormalCrest{off}
+    Expected:
+    - dark body background
+    - corner crest hidden
+  }
+\end{frame}
+
+\UBCFrameDark
+\UBCSetNormalCrest{on}
+\begin{frame}
+  \frametitle{Case N-D-ON}
+  Normal frame, dark variant, crest request ON.
+  \note{
+    Case N-D-ON.
+    Input:
+    - UBCFrameDark
+    - UBCSetNormalCrest{on}
+    Expected:
+    - dark body background
+    - corner crest visible
+  }
+\end{frame}
+
+% ============================================================================
+% 4) STANDOUT FRAME CASES (4)
+% ============================================================================
+
+\UBCFrameLight
+\UBCSetNormalCrest{off}
+\begin{frame}[standout]
+  Case U-L-OFF
+  \note{
+    Case U-L-OFF.
+    Input:
+    - UBCFrameLight
+    - UBCSetNormalCrest{off}
+    Expected:
+    - light standout style
+    - corner crest hidden
+  }
+\end{frame}
+
+\UBCFrameLight
+\UBCSetNormalCrest{on}
+\begin{frame}[standout]
+  Case U-L-ON
+  \note{
+    Case U-L-ON.
+    Input:
+    - UBCFrameLight
+    - UBCSetNormalCrest{on}
+    Expected:
+    - same visual result as U-L-OFF
+    - standout frame keeps corner crest hidden by design
+  }
+\end{frame}
+
+\UBCFrameDark
+\UBCSetNormalCrest{off}
+\begin{frame}[standout]
+  Case U-D-OFF
+  \note{
+    Case U-D-OFF.
+    Input:
+    - UBCFrameDark
+    - UBCSetNormalCrest{off}
+    Expected:
+    - dark standout style
+    - corner crest hidden
+  }
+\end{frame}
+
+\UBCFrameDark
+\UBCSetNormalCrest{on}
+\begin{frame}[standout]
+  Case U-D-ON
+  \note{
+    Case U-D-ON.
+    Input:
+    - UBCFrameDark
+    - UBCSetNormalCrest{on}
+    Expected:
+    - same visual result as U-D-OFF
+    - standout frame keeps corner crest hidden by design
+  }
+\end{frame}
+
+\begin{frame}[allowframebreaks]
+  \frametitle{References}
+  \bibliographystyle{plain}
+  \bibliography{references}
+\end{frame}
+
+\end{document}

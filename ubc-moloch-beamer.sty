@@ -1,7 +1,8 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{ubc-moloch-beamer}[2026/02/22 UBC moloch beamer style]
+\ProvidesPackage{ubc-moloch-beamer}[2026/03/14 UBC moloch beamer style]
 
 \RequirePackage{etoolbox}
+\RequirePackage{pgfkeys}
 
 \usetheme[titlepage=plain,colortheme=paper]{moloch}
 \molochset{progressbar=frametitle}
@@ -35,92 +36,325 @@
 
 \makeatletter
 \newif\ifubc@framedark
+\newif\ifubc@showcornerlogo
+\newif\ifubc@sectiondark
+\newif\ifubc@sectioncrest
+\newif\ifubc@normalcrest
+\newif\ifubc@framefootnotesymbols
+\newif\ifubc@titleframe
+\newif\ifubc@sectionframe
+
+\def\ubc@titleframevariant{light}
+\def\ubc@normalframevariant{light}
+\def\ubc@nextframevariant{auto}
+\def\ubc@nextframecrest{auto}
+\def\ubc@titlepagenumbering{none}
+\def\ubc@sectionpagenumbering{none}
+
+\newcommand{\ubc@setframedarktrueglobal}{\global\let\ifubc@framedark\iftrue}
+\newcommand{\ubc@setframedarkfalseglobal}{\global\let\ifubc@framedark\iffalse}
+\newcommand{\ubc@setshowcornerlogotrueglobal}{\global\let\ifubc@showcornerlogo\iftrue}
+\newcommand{\ubc@setshowcornerlogofalseglobal}{\global\let\ifubc@showcornerlogo\iffalse}
+\newcommand{\ubc@setsectiondarktrueglobal}{\global\let\ifubc@sectiondark\iftrue}
+\newcommand{\ubc@setsectiondarkfalseglobal}{\global\let\ifubc@sectiondark\iffalse}
+\newcommand{\ubc@setsectioncresttrueglobal}{\global\let\ifubc@sectioncrest\iftrue}
+\newcommand{\ubc@setsectioncrestfalseglobal}{\global\let\ifubc@sectioncrest\iffalse}
+\newcommand{\ubc@setnormalcresttrueglobal}{\global\let\ifubc@normalcrest\iftrue}
+\newcommand{\ubc@setnormalcrestfalseglobal}{\global\let\ifubc@normalcrest\iffalse}
+\newcommand{\ubc@setframefootnotesymbolstrueglobal}{\global\let\ifubc@framefootnotesymbols\iftrue}
+\newcommand{\ubc@setframefootnotesymbolsfalseglobal}{\global\let\ifubc@framefootnotesymbols\iffalse}
+\newcommand{\ubc@settitleframetrueglobal}{\global\let\ifubc@titleframe\iftrue}
+\newcommand{\ubc@settitleframefalseglobal}{\global\let\ifubc@titleframe\iffalse}
+\newcommand{\ubc@setsectionframetrueglobal}{\global\let\ifubc@sectionframe\iftrue}
+\newcommand{\ubc@setsectionframefalseglobal}{\global\let\ifubc@sectionframe\iffalse}
+
+\ubc@setshowcornerlogotrueglobal
+\ubc@setsectiondarktrueglobal
+\ubc@setsectioncrestfalseglobal
+\ubc@setnormalcresttrueglobal
+\ubc@setframefootnotesymbolsfalseglobal
+\ubc@settitleframefalseglobal
+\ubc@setsectionframefalseglobal
+\molochset{standoutnumbering=none}
+
+% Beamer color assignments are local by default. Page-number colors need to
+% survive the frame grouping used by overlays, notes, and semantic-page hooks.
+\newcommand{\ubc@setbeamercolorglobal}[2]{%
+  \begingroup
+    \globaldefs=1\relax
+    \setbeamercolor{#1}{#2}%
+  \endgroup
+}
 \newcommand{\ubc@setlight}{%
   \molochcolors{variant=light}%
-  \setbeamercolor{page number in head/foot}{use=normal text,fg=normal text.fg}%
-  \global\ubc@framedarkfalse
+  \ubc@setbeamercolorglobal{page number in head/foot}{fg=black}%
+  \ubc@setframedarkfalseglobal
 }
 \newcommand{\ubc@setdark}{%
   \molochcolors{variant=dark}%
-  \setbeamercolor{page number in head/foot}{use=normal text,fg=normal text.fg}%
-  \global\ubc@framedarktrue
+  \ubc@setbeamercolorglobal{page number in head/foot}{fg=white}%
+  \ubc@setframedarktrueglobal
 }
 
-\newbool{ubc@title@dark}
-\newbool{ubc@titleframe}
-\newbool{ubc@sectionframe}
-\newbool{ubc@sectionlogo}
-\newbool{ubc@normallogo}
-\newbool{ubc@forcelight}
-\newbool{ubc@forcedark}
-\boolfalse{ubc@title@dark}
-\boolfalse{ubc@titleframe}
-\boolfalse{ubc@sectionframe}
-\boolfalse{ubc@sectionlogo}
-\booltrue{ubc@normallogo}
-\boolfalse{ubc@forcelight}
-\boolfalse{ubc@forcedark}
-\newif\ifubc@showcornerlogo
-\ubc@showcornerlogotrue
-
-\newcommand{\UBCSetTitleVariant}[1]{%
-  \ifstrequal{#1}{dark}{%
-    \booltrue{ubc@title@dark}%
+\newcommand{\ubclogoenable}{\ubc@setshowcornerlogotrueglobal}
+\newcommand{\ubclogodisable}{\ubc@setshowcornerlogofalseglobal}
+% \UBCFrameSetup is intentionally one-shot: the next regular content frame
+% consumes any pending variant/crest overrides and then resets to deck defaults.
+\newcommand{\ubc@resetnextframe}{%
+  \gdef\ubc@nextframevariant{auto}%
+  \gdef\ubc@nextframecrest{auto}%
+}
+% Semantic-page numbering only decides count/show policy. The actual page-number
+% rendering remains whatever Beamer or moloch template the deck selected.
+\newcommand{\ubc@hidepagenumbertemplate}{%
+  \setbeamertemplate{page number in head/foot}{}%
+}
+\newcommand{\ubc@setsectionvariant}[1]{%
+  \ifstrequal{#1}{light}{%
+    \ubc@setsectiondarkfalseglobal
   }{%
-    \ifstrequal{#1}{light}{%
-      \boolfalse{ubc@title@dark}%
+    \ifstrequal{#1}{dark}{%
+      \ubc@setsectiondarktrueglobal
+    }{%
+      \PackageError{ubc-moloch-beamer}{Invalid section variant '#1'}{Use 'light' or 'dark'.}%
+    }%
+  }%
+}
+\newcommand{\ubc@setnormalframevariant}[1]{%
+  \ifstrequal{#1}{light}{%
+    \gdef\ubc@normalframevariant{light}%
+  }{%
+    \ifstrequal{#1}{dark}{%
+      \gdef\ubc@normalframevariant{dark}%
+    }{%
+      \PackageError{ubc-moloch-beamer}{Invalid normal variant '#1'}{Use 'light' or 'dark'.}%
+    }%
+  }%
+}
+\newcommand{\ubc@setsectioncrest}[1]{%
+  \ifstrequal{#1}{on}{%
+    \ubc@setsectioncresttrueglobal
+  }{%
+    \ifstrequal{#1}{off}{%
+      \ubc@setsectioncrestfalseglobal
+    }{%
+      \PackageError{ubc-moloch-beamer}{Invalid section crest '#1'}{Use 'on' or 'off'.}%
+    }%
+  }%
+}
+\newcommand{\ubc@setnormalcrest}[1]{%
+  \ifstrequal{#1}{on}{%
+    \ubc@setnormalcresttrueglobal
+  }{%
+    \ifstrequal{#1}{off}{%
+      \ubc@setnormalcrestfalseglobal
+    }{%
+      \PackageError{ubc-moloch-beamer}{Invalid normal crest '#1'}{Use 'on' or 'off'.}%
+    }%
+  }%
+}
+\newcommand{\ubc@setframefootnotes}[1]{%
+  \ifstrequal{#1}{off}{%
+    \ubc@setframefootnotesymbolsfalseglobal
+  }{%
+    \ifstrequal{#1}{local-symbols}{%
+      \ubc@setframefootnotesymbolstrueglobal
+    }{%
+      \PackageError{ubc-moloch-beamer}{Invalid frame footnotes mode '#1'}{Use 'off' or 'local-symbols'.}%
+    }%
+  }%
+}
+\newcommand{\ubc@setnumberingpolicy}[3]{%
+  \ifstrequal{#1}{none}{%
+    \gdef#2{none}%
+  }{%
+    \ifstrequal{#1}{hide}{%
+      \gdef#2{hide}%
+    }{%
+      \ifstrequal{#1}{show}{%
+        \gdef#2{show}%
+      }{%
+        \PackageError{ubc-moloch-beamer}{Invalid #3 '#1'}{Use 'none', 'hide', or 'show'.}%
+      }%
+    }%
+  }%
+}
+\newcommand{\ubc@settitlepagenumbering}[1]{%
+  \ubc@setnumberingpolicy{#1}{\ubc@titlepagenumbering}{title page numbering}%
+}
+\newcommand{\ubc@setsectionpagenumbering}[1]{%
+  \ubc@setnumberingpolicy{#1}{\ubc@sectionpagenumbering}{section page numbering}%
+}
+\newcommand{\ubc@setstandoutnumbering}[1]{%
+  \ifstrequal{#1}{none}{%
+    \molochset{standoutnumbering=none}%
+  }{%
+    \ifstrequal{#1}{hide}{%
+      \molochset{standoutnumbering=hide}%
+    }{%
+      \ifstrequal{#1}{show}{%
+        \molochset{standoutnumbering=show}%
+      }{%
+        \PackageError{ubc-moloch-beamer}{Invalid standout numbering '#1'}{Use 'none', 'hide', or 'show'.}%
+      }%
+    }%
+  }%
+}
+\newcommand{\ubc@setnextframevariant}[1]{%
+  \ifstrequal{#1}{light}{%
+    \gdef\ubc@nextframevariant{light}%
+  }{%
+    \ifstrequal{#1}{dark}{%
+      \gdef\ubc@nextframevariant{dark}%
+    }{%
+      \PackageError{ubc-moloch-beamer}{Invalid next-frame variant '#1'}{Use 'light' or 'dark'.}%
+    }%
+  }%
+}
+\newcommand{\ubc@setnextframecrest}[1]{%
+  \ifstrequal{#1}{auto}{%
+    \gdef\ubc@nextframecrest{auto}%
+  }{%
+    \ifstrequal{#1}{on}{%
+      \gdef\ubc@nextframecrest{on}%
+    }{%
+      \ifstrequal{#1}{off}{%
+        \gdef\ubc@nextframecrest{off}%
+      }{%
+        \PackageError{ubc-moloch-beamer}{Invalid next-frame crest '#1'}{Use 'auto', 'on', or 'off'.}%
+      }%
+    }%
+  }%
+}
+\newcommand{\ubc@settitlevariant}[1]{%
+  \ifstrequal{#1}{light}{%
+    \gdef\ubc@titleframevariant{light}%
+  }{%
+    \ifstrequal{#1}{dark}{%
+      \gdef\ubc@titleframevariant{dark}%
     }{%
       \PackageError{ubc-moloch-beamer}{Invalid title variant '#1'}{Use 'light' or 'dark'.}%
     }%
   }%
 }
-\newcommand{\UBCTitleFrame}{%
-  \global\ubc@titleframetrue
-}
-\newcommand{\UBCFrameLight}{%
-  \global\ubc@forcelighttrue
-  \global\ubc@forcedarkfalse
-}
-\newcommand{\UBCFrameDark}{%
-  \global\ubc@forcedarktrue
-  \global\ubc@forcelightfalse
-}
-\newcommand{\UBCSetSectionCrest}[1]{%
-  \ifstrequal{#1}{on}{%
-    \booltrue{ubc@sectionlogo}%
+\newcommand{\ubc@applytitleframestyle}{%
+  \ifdefstring{\ubc@titleframevariant}{dark}{%
+    \ubc@setdark
   }{%
-    \ifstrequal{#1}{off}{%
-      \boolfalse{ubc@sectionlogo}%
+    \ubc@setlight
+  }%
+  \ubclogodisable
+}
+\newcommand{\ubc@applysectionframestyle}{%
+  \ifubc@sectiondark
+    \ubc@setdark
+  \else
+    \ubc@setlight
+  \fi
+  \ifubc@sectioncrest
+    \ubclogoenable
+  \else
+    \ubclogodisable
+  \fi
+}
+\newcommand{\ubc@applystandoutframestyle}{%
+  \ubc@setdark
+  \ubclogodisable
+}
+\newcommand{\ubc@applyregularframestyle}{%
+  \ifdefstring{\ubc@nextframevariant}{dark}{%
+    \ubc@setdark
+  }{%
+    \ifdefstring{\ubc@nextframevariant}{light}{%
+      \ubc@setlight
     }{%
-      \ifstrequal{#1}{true}{%
-        \booltrue{ubc@sectionlogo}%
+      \ifdefstring{\ubc@normalframevariant}{dark}{%
+        \ubc@setdark
       }{%
-        \ifstrequal{#1}{false}{%
-          \boolfalse{ubc@sectionlogo}%
-        }{%
-          \PackageError{ubc-moloch-beamer}{Invalid section crest value '#1'}{Use on/off or true/false.}%
-        }%
+        \ubc@setlight
       }%
     }%
   }%
-}
-\newcommand{\UBCSetNormalCrest}[1]{%
-  \ifstrequal{#1}{on}{%
-    \booltrue{ubc@normallogo}%
+  \ifdefstring{\ubc@nextframecrest}{on}{%
+    \ubclogoenable
   }{%
-    \ifstrequal{#1}{off}{%
-      \boolfalse{ubc@normallogo}%
+    \ifdefstring{\ubc@nextframecrest}{off}{%
+      \ubclogodisable
     }{%
-      \ifstrequal{#1}{true}{%
-        \booltrue{ubc@normallogo}%
-      }{%
-        \ifstrequal{#1}{false}{%
-          \boolfalse{ubc@normallogo}%
-        }{%
-          \PackageError{ubc-moloch-beamer}{Invalid normal crest value '#1'}{Use on/off or true/false.}%
-        }%
-      }%
+      \ifubc@normalcrest
+        \ubclogoenable
+      \else
+        \ubclogodisable
+      \fi
     }%
+  }%
+  \ubc@resetnextframe
+}
+\newcommand{\ubc@applyframestyle}{%
+  \ifubc@titleframe
+    \ubc@applytitleframestyle
+    \ubc@settitleframefalseglobal
+  \else
+    \ifubc@sectionframe
+      \ubc@applysectionframestyle
+    \else
+      \ifbool{moloch@standout}{%
+        \ubc@applystandoutframestyle
+      }{%
+        \ubc@applyregularframestyle
+      }%
+    \fi
+  \fi
+}
+
+\pgfkeys{
+  /ubc/setup/.is family,
+  /ubc/setup,
+  normal variant/.code=\ubc@setnormalframevariant{#1},
+  section variant/.code=\ubc@setsectionvariant{#1},
+  section crest/.code=\ubc@setsectioncrest{#1},
+  normal crest/.code=\ubc@setnormalcrest{#1},
+  frame footnotes/.code=\ubc@setframefootnotes{#1},
+  title page numbering/.code=\ubc@settitlepagenumbering{#1},
+  section page numbering/.code=\ubc@setsectionpagenumbering{#1},
+  standout numbering/.code=\ubc@setstandoutnumbering{#1},
+}
+\pgfkeys{
+  /ubc/frame/.is family,
+  /ubc/frame,
+  variant/.code=\ubc@setnextframevariant{#1},
+  crest/.code=\ubc@setnextframecrest{#1},
+}
+\pgfkeys{
+  /ubc/title/.is family,
+  /ubc/title,
+  variant/.code=\ubc@settitlevariant{#1},
+}
+
+\newcommand{\UBCSetup}[1]{\pgfqkeys{/ubc/setup}{#1}}
+\newcommand{\UBCFrameSetup}[1]{%
+  \pgfqkeys{/ubc/frame}{#1}%
+}
+% Title-page numbering policy is semantic: `none` suppresses counting, while
+% `hide` keeps counting but temporarily blanks the page-number template.
+\newcommand{\UBCTitlePage}[1][]{%
+  \gdef\ubc@titleframevariant{light}%
+  \pgfqkeys{/ubc/title}{#1}%
+  \ifx\inserttitlegraphic\@empty
+    \titlegraphic{\ubccrest}%
+  \fi
+  {%
+    \ubc@settitleframetrueglobal
+    \ifdefstring{\ubc@titlepagenumbering}{show}{}{%
+      \ubc@hidepagenumbertemplate
+    }%
+    \ifdefstring{\ubc@titlepagenumbering}{none}{%
+      \begin{frame}[noframenumbering]
+    }{%
+      \begin{frame}
+    }%
+      \titlepage
+    \end{frame}
   }%
 }
 
@@ -162,8 +396,6 @@
   \end{tikzpicture}%
   \tikzexternalenable
 }
-\newcommand{\ubclogoenable}{\global\ubc@showcornerlogotrue}
-\newcommand{\ubclogodisable}{\global\ubc@showcornerlogofalse}
 
 % Fill slide canvas from our frame-level dark/light state so body background
 % remains correct when notes/two-screen mode introduces extra grouping.
@@ -175,62 +407,78 @@
   \fi
 }
 
-\newcommand{\ubc@applyforcedvariant}[1]{%
-  \ifbool{ubc@forcelight}{%
-    \ubc@setlight
-  }{%
-    \ifbool{ubc@forcedark}{%
-      \ubc@setdark
-    }{%
-      #1%
-    }%
-  }%
-}
-\newcommand{\ubc@applyframestyle}{%
-  \ifbool{ubc@titleframe}{%
-    \ubc@applyforcedvariant{%
-      \ifbool{ubc@title@dark}{\ubc@setdark}{\ubc@setlight}%
-    }%
-    % Keep title frame unnumbered and hide its page-number display.
-    \addtocounter{framenumber}{-1}%
-    \ubclogodisable
-  }{%
-    \ifbool{ubc@sectionframe}{%
-      \ubc@applyforcedvariant{\ubc@setdark}%
-      \ifbool{ubc@sectionlogo}{\ubclogoenable}{\ubclogodisable}%
-    }{%
-      \ifbool{moloch@standout}{%
-        \ubc@applyforcedvariant{\ubc@setdark}%
-        \ubclogodisable
-      }{%
-        \ubc@applyforcedvariant{\ubc@setlight}%
-        \ifbool{ubc@normallogo}{\ubclogoenable}{\ubclogodisable}%
-      }%
-    }%
-  }%
-  \global\ubc@titleframefalse
-  \global\ubc@forcelightfalse
-  \global\ubc@forcedarkfalse
-}
-
-% Apply style at the start of each frame.
+% Apply style at the frame-slide level so parsed frame options such as
+% `standout` are available before the slide is rendered.
 \AtBeginEnvironment{beamer@frameslide}{\ubc@applyframestyle}
 
-% Section page: dark + no corner logo.
+% Plain section frames bypass the normal footline, so the numbered variant
+% overlays the currently selected page-number template explicitly.
+\newcommand{\ubc@overlaypagenumber}{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=south east,inner sep=0pt,outer sep=0pt]
+      at ([xshift=-5pt,yshift=4pt]current page.south east)
+      {{%
+        \usebeamercolor[fg]{page number in head/foot}%
+        \usebeamerfont{page number in head/foot}%
+        \usebeamertemplate*{page number in head/foot}%
+      }};
+  \end{tikzpicture}%
+}
+\newcommand{\ubc@sectionpagewithnumber}{%
+  \sectionpage%
+  \ubc@overlaypagenumber
+}
+
+% Section pages are owned by the theme.
 \AtBeginSection{
-  \global\ubc@sectionframetrue
+  \ubc@setsectionframetrueglobal
   \ifbeamer@inframe
-    \sectionpage
-    \global\ubc@sectionframefalse
+    \ifdefstring{\ubc@sectionpagenumbering}{show}{%
+      \ubc@sectionpagewithnumber
+    }{%
+      \sectionpage
+    }%
+    \ubc@setsectionframefalseglobal
   \else
-    \frame[plain,c,noframenumbering]{\sectionpage}
-    \global\ubc@sectionframefalse
+    {%
+      \ifdefstring{\ubc@sectionpagenumbering}{none}{%
+        \ubc@hidepagenumbertemplate
+        \frame[plain,c,noframenumbering]{\sectionpage}
+      }{%
+        \ifdefstring{\ubc@sectionpagenumbering}{show}{%
+          \frame[plain,c]{\ubc@sectionpagewithnumber}
+        }{%
+          \ubc@hidepagenumbertemplate
+          \frame[plain,c]{\sectionpage}
+        }%
+      }%
+    }%
+    \ubc@setsectionframefalseglobal
   \fi
 }
+
+% Slide-local symbolic footnotes are optional deck-level behavior.
+\let\ubc@origthefootnote\thefootnote
+\let\ubc@origthempfootnote\thempfootnote
+\newcommand{\ubc@symbolicfootnote}{\fnsymbol{footnote}}
+\newcommand{\ubc@symbolicmpfootnote}{\fnsymbol{mpfootnote}}
+\AtBeginEnvironment{frame}{%
+  \ifubc@framefootnotesymbols
+    \let\thefootnote\ubc@symbolicfootnote
+    \let\thempfootnote\ubc@symbolicmpfootnote
+    \setcounter{footnote}{0}%
+    \setcounter{mpfootnote}{0}%
+  \else
+    \let\thefootnote\ubc@origthefootnote
+    \let\thempfootnote\ubc@origthempfootnote
+  \fi
+}
+\newcommand{\framefootnote}[1]{\footnote[frame]{#1}}
 
 % Defaults for regular content frames.
 \setbeamertemplate{background canvas}[ubc frame fill]
 \setbeamertemplate{background}[ubc corner logo]
+
 % Keep itemize markers visible when packages like enumitem rely on \labelitem*.
 \def\labelitemi{%
   \usebeamerfont*{itemize item}%
@@ -252,21 +500,23 @@
   \usebeamercolor[fg]{itemize subsubitem}%
   \usebeamertemplate{itemize subsubitem}%
 }
-% Show page number only after numbered content starts.
+% Provide a conservative default page-number template so decks that do not
+% choose a Beamer/moloch template still get numbered regular content frames.
 \defbeamertemplate{page number in head/foot}{ubc frame number}{%
   \ifnum\value{framenumber}>0\relax
-    \ifubc@framedark
-      {\color{white}\insertframenumber}%
-    \else
-      {\usebeamercolor[fg]{normal text}\insertframenumber}%
-    \fi
+    {%
+      \usebeamerfont{page number in head/foot}%
+      \usebeamercolor[fg]{page number in head/foot}%
+      \insertframenumber
+    }%
   \fi
 }
 \setbeamertemplate{page number in head/foot}[ubc frame number]
+
 % Avoid hyperref bookmark warnings when continuation labels use \translate.
 \pdfstringdefDisableCommands{%
   \def\translate#1{#1}%
 }
+
 \ubc@setlight
-\ubclogoenable
 \makeatother

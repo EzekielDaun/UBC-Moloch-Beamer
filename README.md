@@ -6,6 +6,41 @@ A UBC-flavored Beamer template built on top of the moloch theme, suitable for th
 
 The repository includes two relatively comprehensive demo decks: `demo_light.tex` and `demo_dark.tex`.
 
+## Style API
+
+The public API is intentionally small:
+
+- `\UBCSetup{...}` sets deck-level defaults.
+- `\UBCFrameSetup{...}` configures the next regular content frame and then auto-resets.
+- `\UBCTitlePage[variant=light|dark]` emits the title page directly.
+
+Current defaults:
+
+- regular frames are light with the corner crest on
+- section pages are dark with the corner crest off
+- standout frames are dark with the corner crest off
+- title, section, and standout pages do not count toward frame numbers by default
+- `\titlegraphic` defaults to `\ubccrest` on `\UBCTitlePage` when unset
+
+Supported keys:
+
+- `\UBCSetup{normal variant=light|dark, section variant=light|dark, section crest=on|off, normal crest=on|off, frame footnotes=off|local-symbols, title page numbering=none|hide|show, section page numbering=none|hide|show, standout numbering=none|hide|show}`
+- `\UBCFrameSetup{variant=light|dark, crest=auto|on|off}`
+
+Page numbering policy meanings:
+
+- `none`: do not count the semantic page and do not show a page number
+- `hide`: count the semantic page but hide its page number
+- `show`: count the semantic page and show the currently selected Beamer page-number template
+
+`UBC-Moloch-Beamer` does not define its own page-number style options. Pick the rendering you want through Beamer or moloch, for example:
+
+```tex
+\setbeamertemplate{page number in head/foot}[appendixframenumber]
+```
+
+If you do not select a page-number template yourself, the theme falls back to a minimal current-frame-number template for regular content slides.
+
 ## What is included
 
 - `ubc-moloch-beamer.sty`: UBC-specific style layer on top of moloch.
@@ -38,6 +73,40 @@ pdflatex -interaction=nonstopmode main.tex
 pdflatex -interaction=nonstopmode main.tex
 ```
 
+Minimal usage:
+
+```tex
+\documentclass[aspectratio=169,11pt]{beamer}
+\usepackage{ubc-moloch-beamer}
+\setbeamertemplate{page number in head/foot}[appendixframenumber]
+
+\UBCSetup{
+  title page numbering=none,
+  section page numbering=none,
+  standout numbering=none
+}
+
+\title{My Talk}
+\author{Your Name}
+\institute{The University of British Columbia}
+\date{\today}
+
+\begin{document}
+\UBCTitlePage[variant=light]
+
+\begin{frame}
+  \frametitle{Overview}
+  Regular frames default to light with the crest on.
+\end{frame}
+
+\UBCFrameSetup{variant=dark, crest=off}
+\begin{frame}
+  \frametitle{Key Slide}
+  This frame is dark and crest-free.
+\end{frame}
+\end{document}
+```
+
 ## Development commands
 
 ```bash
@@ -50,7 +119,7 @@ make clean    # remove intermediate files
 
 - `main.tex`: minimal starter deck
 - `demo_light.tex` and `demo_dark.tex`: relatively comprehensive demo decks
-- `style-matrix.tex`: style regression deck (light/dark x frame type x crest)
+- `style-matrix.tex`: style regression deck for the public API
 - `ubc-moloch-beamer.sty`: theme customization package
 - `logo/`: crest assets used by the template
 - `.github/workflows/latex.yml`: CI compile checks

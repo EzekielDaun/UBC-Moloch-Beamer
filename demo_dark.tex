@@ -19,24 +19,17 @@
 
 \usepackage{xspace}
 
-% Force all frames to use the dark variant in this demo deck.
-\makeatletter
-\BeforeBeginEnvironment{beamer@frameslide}{\UBCFrameDark}
-\makeatother
+\UBCSetup{normal variant=dark}
 
 \title{Moloch}
 \subtitle{A Minimal Beamer Theme (Dark)}
 \date{\today}
 \author{The Author}
 \institute{Some Institution, Some University}
-\titlegraphic{\ubccrest}
 
 \begin{document}
 
-\UBCTitleFrame
-\begin{frame}
-  \maketitle
-\end{frame}
+\UBCTitlePage[variant=dark]
 
 \begin{frame}
   \frametitle{Table of Contents}

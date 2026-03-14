@@ -4,7 +4,7 @@
 
 A UBC-flavored Beamer template built on top of the moloch theme, suitable for thesis defense and academic presentations.
 
-The repository includes two relatively comprehensive demo decks: `demo_light.tex` and `demo_dark.tex`.
+The repository includes two relatively comprehensive demo decks, plus a short handout-layout demo: `demo_light.tex`, `demo_dark.tex`, and `demo_handout.tex`.
 
 ## Style API
 
@@ -19,12 +19,13 @@ Current defaults:
 - regular frames are light with the corner crest on
 - section pages are dark with the corner crest off
 - standout frames are dark with the corner crest off
+- decks export pure slides by default, with notes hidden
 - title, section, and standout pages do not count toward frame numbers by default
 - `\titlegraphic` defaults to `\ubccrest` on `\UBCTitlePage` when unset
 
 Supported keys:
 
-- `\UBCSetup{normal variant=light|dark, section variant=light|dark, section crest=on|off, normal crest=on|off, frame footnotes=off|local-symbols, title page numbering=none|hide|show, section page numbering=none|hide|show, standout numbering=none|hide|show}`
+- `\UBCSetup{normal variant=light|dark, section variant=light|dark, section crest=on|off, normal crest=on|off, notes mode=slides|speaker|handout, frame footnotes=off|local-symbols, title page numbering=none|hide|show, section page numbering=none|hide|show, standout numbering=none|hide|show}`
 - `\UBCFrameSetup{variant=light|dark, crest=auto|on|off}`
 
 Page numbering policy meanings:
@@ -41,11 +42,18 @@ Page numbering policy meanings:
 
 If you do not select a page-number template yourself, the theme falls back to a minimal current-frame-number template for regular content slides.
 
+Notes mode meanings:
+
+- `slides`: export only the slide pages
+- `speaker`: export slide plus right-side speaker notes using the frame `\note{...}` content
+- `handout`: export slide plus a bottom ruled blank note area for printed markup; frame `\note{...}` content is hidden in this mode
+
 ## What is included
 
 - `ubc-moloch-beamer.sty`: UBC-specific style layer on top of moloch.
 - `main.tex`: minimal user-facing entry template.
 - `demo_light.tex` and `demo_dark.tex`: relatively comprehensive demo decks.
+- `demo_handout.tex`: short handout-mode demo for printed committee copies.
 - `style-matrix.tex`: style behavior matrix used for regression checks.
 - `references.bib`: bibliography database (moloch software citation + demo references).
 
@@ -81,6 +89,7 @@ Minimal usage:
 \setbeamertemplate{page number in head/foot}[appendixframenumber]
 
 \UBCSetup{
+  notes mode=slides,
   title page numbering=none,
   section page numbering=none,
   standout numbering=none
@@ -110,8 +119,9 @@ Minimal usage:
 ## Development commands
 
 ```bash
-make all      # build main, style-matrix, and both demos
+make all      # build main, style-matrix, and all demos
 make matrix   # build style matrix only
+make demo_handout  # build the short handout demo
 make clean    # remove intermediate files
 ```
 
@@ -119,6 +129,7 @@ make clean    # remove intermediate files
 
 - `main.tex`: minimal starter deck
 - `demo_light.tex` and `demo_dark.tex`: relatively comprehensive demo decks
+- `demo_handout.tex`: short handout-mode example deck
 - `style-matrix.tex`: style regression deck for the public API
 - `ubc-moloch-beamer.sty`: theme customization package
 - `logo/`: crest assets used by the template

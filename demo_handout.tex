@@ -1,0 +1,43 @@
+\documentclass[aspectratio=169,11pt]{beamer}
+
+\usepackage{ubc-moloch-beamer}
+
+\setbeamertemplate{page number in head/foot}[appendixframenumber]
+
+\UBCSetup{
+  notes mode=handout,
+  title page numbering=none,
+  section page numbering=none,
+  standout numbering=none
+}
+
+\title{UBC-Moloch-Beamer}
+\subtitle{Handout Output Demo}
+\author{The Author}
+\institute{The University of British Columbia}
+\date{\today}
+
+\begin{document}
+
+\UBCTitlePage[variant=light]
+
+\begin{frame}
+  \frametitle{Committee Copy}
+  This demo shows the handout export mode.
+  \begin{itemize}
+    \item Each slide gets a blank ruled note area below the content.
+    \item The title slide keeps its lower note area completely blank.
+    \item Speaker note text is hidden in this output.
+  \end{itemize}
+  \note{This note is intentionally not shown in handout mode.}
+\end{frame}
+
+\section{Example}
+
+\UBCFrameSetup{variant=dark, crest=off}
+\begin{frame}
+  \frametitle{Marked-Up Slide}
+  The main slide content keeps the same layout as the normal slide export.
+\end{frame}
+
+\end{document}

@@ -48,6 +48,7 @@
 \def\ubc@normalframevariant{light}
 \def\ubc@nextframevariant{auto}
 \def\ubc@nextframecrest{auto}
+\def\ubc@notesmode{slides}
 \def\ubc@titlepagenumbering{none}
 \def\ubc@sectionpagenumbering{none}
 
@@ -98,6 +99,25 @@
 
 \newcommand{\ubclogoenable}{\ubc@setshowcornerlogotrueglobal}
 \newcommand{\ubclogodisable}{\ubc@setshowcornerlogofalseglobal}
+% Notes mode is a deck-level layout choice. It selects one of the supported
+% Beamer note exports and is expected to be configured in the preamble.
+\newcommand{\ubc@applynotesmode}{%
+  \ifdefstring{\ubc@notesmode}{slides}{%
+    \setbeameroption{hide notes}%
+    \@ifpackageloaded{pgfpages}{%
+      \pgfpagesuselayout{resize to}[physical paper width=\paperwidth,physical paper height=\paperheight]%
+    }{}%
+    \beamer@twoscreensnotesfalse
+  }{%
+    \ifdefstring{\ubc@notesmode}{speaker}{%
+      \setbeameroption{show notes on second screen=right}%
+      \setbeamertemplate{note page}[plain]%
+    }{%
+      \setbeameroption{show notes on second screen=bottom}%
+      \setbeamertemplate{note page}[lined]%
+    }%
+  }%
+}
 % \UBCFrameSetup is intentionally one-shot: the next regular content frame
 % consumes any pending variant/crest overrides and then resets to deck defaults.
 \newcommand{\ubc@resetnextframe}{%
@@ -163,6 +183,22 @@
       \PackageError{ubc-moloch-beamer}{Invalid frame footnotes mode '#1'}{Use 'off' or 'local-symbols'.}%
     }%
   }%
+}
+\newcommand{\ubc@setnotesmode}[1]{%
+  \ifstrequal{#1}{slides}{%
+    \gdef\ubc@notesmode{slides}%
+  }{%
+    \ifstrequal{#1}{speaker}{%
+      \gdef\ubc@notesmode{speaker}%
+    }{%
+      \ifstrequal{#1}{handout}{%
+        \gdef\ubc@notesmode{handout}%
+      }{%
+        \PackageError{ubc-moloch-beamer}{Invalid notes mode '#1'}{Use 'slides', 'speaker', or 'handout'.}%
+      }%
+    }%
+  }%
+  \ubc@applynotesmode
 }
 \newcommand{\ubc@setnumberingpolicy}[3]{%
   \ifstrequal{#1}{none}{%
@@ -314,6 +350,7 @@
   section variant/.code=\ubc@setsectionvariant{#1},
   section crest/.code=\ubc@setsectioncrest{#1},
   normal crest/.code=\ubc@setnormalcrest{#1},
+  notes mode/.code=\ubc@setnotesmode{#1},
   frame footnotes/.code=\ubc@setframefootnotes{#1},
   title page numbering/.code=\ubc@settitlepagenumbering{#1},
   section page numbering/.code=\ubc@setsectionpagenumbering{#1},
@@ -348,6 +385,11 @@
     \ifdefstring{\ubc@titlepagenumbering}{show}{}{%
       \ubc@hidepagenumbertemplate
     }%
+    % In handout mode, keep the title slide's lower note area completely blank
+    % instead of using the ruled note template that regular content frames use.
+    \ifdefstring{\ubc@notesmode}{handout}{%
+      \setbeamertemplate{note page}[plain]%
+    }{}%
     \ifdefstring{\ubc@titlepagenumbering}{none}{%
       \begin{frame}[noframenumbering]
     }{%
@@ -518,5 +560,6 @@
   \def\translate#1{#1}%
 }
 
+\ubc@applynotesmode
 \ubc@setlight
 \makeatother

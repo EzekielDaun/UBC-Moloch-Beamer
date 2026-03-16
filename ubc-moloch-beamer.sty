@@ -449,8 +449,8 @@
   \fi
 }
 
-% Apply style at the frame-slide level so parsed frame options such as
-% `standout` are available before the slide is rendered.
+% Apply slide-local behavior at the frame-slide level, where Beamer is
+% actually typesetting a slide rather than collecting the frame body.
 \AtBeginEnvironment{beamer@frameslide}{\ubc@applyframestyle}
 
 % Plain section frames bypass the normal footline, so the numbered variant
@@ -499,23 +499,24 @@
   \fi
 }
 
-% Slide-local symbolic footnotes are optional deck-level behavior.
-\let\ubc@origthefootnote\thefootnote
-\let\ubc@origthempfootnote\thempfootnote
-\newcommand{\ubc@symbolicfootnote}{\fnsymbol{footnote}}
-\newcommand{\ubc@symbolicmpfootnote}{\fnsymbol{mpfootnote}}
-\AtBeginEnvironment{frame}{%
+% Slide-local symbolic footnotes are implemented with a dedicated per-slide
+% counter so they stay stable across Beamer's frame-body collection internals.
+\newcounter{ubcframefootnote}
+\AtBeginEnvironment{beamer@frameslide}{\setcounter{ubcframefootnote}{0}}
+\newcommand{\ubc@symbolicframefootnotemark}{\@fnsymbol\c@ubcframefootnote}
+\newcommand<>{\ubc@symbolicframefootnote}[1]{%
+  \stepcounter{ubcframefootnote}%
+  \protected@xdef\@thefnmark{\ubc@symbolicframefootnotemark}%
+  \@footnotemark%
+  \beamer@framefootnotetext#2{#1}%
+}
+\newcommand<>{\framefootnote}[1]{%
   \ifubc@framefootnotesymbols
-    \let\thefootnote\ubc@symbolicfootnote
-    \let\thempfootnote\ubc@symbolicmpfootnote
-    \setcounter{footnote}{0}%
-    \setcounter{mpfootnote}{0}%
+    \ubc@symbolicframefootnote#2{#1}%
   \else
-    \let\thefootnote\ubc@origthefootnote
-    \let\thempfootnote\ubc@origthempfootnote
+    \footnote#2[frame]{#1}%
   \fi
 }
-\newcommand{\framefootnote}[1]{\footnote[frame]{#1}}
 
 % Defaults for regular content frames.
 \setbeamertemplate{background canvas}[ubc frame fill]

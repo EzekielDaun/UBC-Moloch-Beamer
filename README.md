@@ -2,7 +2,7 @@
 
 > **Project note:** This project was built almost entirely through Codex vibe coding.
 
-A UBC-flavored Beamer template built on top of the moloch theme, suitable for thesis defense and academic presentations.
+A UBC-flavored Beamer template built on top of the moloch theme, suitable for thesis defence and academic presentations.
 
 The repository includes two relatively comprehensive demo decks, plus a short handout-layout demo: `demo_light.tex`, `demo_dark.tex`, and `demo_handout.tex`.
 
